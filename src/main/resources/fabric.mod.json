@@ -3,23 +3,23 @@
 	"id": "advancedtotems",
 	"version": "${version}",
 	"name": "AdvancedTotems",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A mod that adds new upgradeable totems to Minecraft!",
 	"authors": [
-		"Me!"
+		"RDM Studios"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/advancedtotems/icon.png",
+	"icon": "assets/advancedtotems/advancedtotems-icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.rdm.advancedtotems.ExampleMod"
+			"com.rdm.advancedtotems.AdvancedTotems"
 		],
 		"fabric-datagen": [
-			"com.rdm.advancedtotems.ExampleModDataGenerator"
+			
 		]
 	},
 	"mixins": [
