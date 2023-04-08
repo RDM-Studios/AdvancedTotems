@@ -1,0 +1,19 @@
+{
+  "textures": {
+    "layer0": "advancedtotems:item/totem_of_haste"
+  },
+  "overrides": [
+    {
+        "predicate": {
+            "none": 1
+        },
+        "model": "advancedtotems:item/totem_of_haste_none"
+    },
+    {
+        "predicate": {
+            "iron": 1
+        },
+        "model": "advancedtotems:item/totem_of_haste_iron"
+    }
+  ]
+}
