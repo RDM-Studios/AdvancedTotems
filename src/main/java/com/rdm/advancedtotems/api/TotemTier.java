@@ -1,11 +1,14 @@
 package com.rdm.advancedtotems.api;
 
+import com.google.gson.JsonObject;
+
 import net.minecraft.util.Formatting;
 
 public class TotemTier {
 	private final String tierName;
 	private final Integer tierValue;
 	private Formatting tierTooltipFormatting = Formatting.GRAY;
+	private JsonObject tierRecipe;
 	
 	public TotemTier(String tierName, Integer tierValue) {
 		this.tierName = tierName;
@@ -19,6 +22,11 @@ public class TotemTier {
 		return this;
 	}
 	
+	public TotemTier setRecipe(JsonObject tierRecipe) {
+		this.tierRecipe = tierRecipe;
+		return this;
+	}
+	
 	public String getName() {
 		return tierName;
 	}
@@ -29,6 +37,10 @@ public class TotemTier {
 	
 	public Formatting getTooltipFormatting() {
 		return tierTooltipFormatting;
+	}
+	
+	public JsonObject getRecipe() {
+		return tierRecipe;
 	}
 	
 	@Override

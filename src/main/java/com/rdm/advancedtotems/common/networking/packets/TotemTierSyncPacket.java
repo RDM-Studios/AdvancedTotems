@@ -14,8 +14,10 @@ public class TotemTierSyncPacket {
 	public static void recieve(MinecraftServer server, ServerPlayerEntity owner, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		for (ItemStack targetStack : owner.inventory.main) {
 			if (targetStack.getItem() instanceof BaseTotemItem) {
-				BaseTotemItem baseTotem = (BaseTotemItem) targetStack.getItem();
-				baseTotem.syncTier();
+				if (!targetStack.isEmpty()) {
+					BaseTotemItem baseTotem = (BaseTotemItem) targetStack.getItem();
+					baseTotem.syncTier();
+				}
 			}
 		}
 	}

@@ -6,7 +6,7 @@ public class TotemTierComparator implements Comparator<TotemTier> {
 
 	@Override
 	public int compare(TotemTier tier, TotemTier otherTier) {
-		return Integer.compare(tier.getValue(), otherTier.getValue());
+		return tier.getValue() - otherTier.getValue();
 	}
 
 }
