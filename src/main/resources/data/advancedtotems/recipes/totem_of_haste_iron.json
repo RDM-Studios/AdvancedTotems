@@ -10,11 +10,11 @@
             "item": "minecraft:iron_block"
         },
         "T": {
-            "item": "totems:totem_of_haste"
+            "item": "advancedtotems:totem_of_haste"
         }
     },
     "result": {
-        "item": "totems:totem_of_haste",
+        "item": "advancedtotems:totem_of_haste",
         "count": 1
     }
 }

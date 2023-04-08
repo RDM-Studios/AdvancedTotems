@@ -112,7 +112,7 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 		}
 		
 		if (nextTier == null && getCurrentTier() != getStartingTier() && getCurrentTier() != getMaxTier()) this.curTier = getMaxTier();
-		if (nextTier.getValue() >= getMaxTier().getValue()) this.nextTier = getMaxTier();
+		if (nextTier.getValue() >= getMaxTier().getValue()) this.nextTier = null;
 		if (curTier.getValue() >= getMaxTier().getValue()) this.curTier = getMaxTier();
 		
 		if (nextTier != null) {
@@ -134,7 +134,7 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 			}
 		}
 		
-//		Registry.RECIPE_TYPE.get(1);
+		
 		
 		handleTotemTiering();
 	}
