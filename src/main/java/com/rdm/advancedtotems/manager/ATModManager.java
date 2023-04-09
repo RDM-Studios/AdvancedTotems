@@ -10,7 +10,6 @@ public class ATModManager {
 	public static final void registerCommon() {
 		ATTotemTiers.registerTotemTiers();
 		ATItems.registerItems();
-		ATPackets.registerC2SPackets();
 	}
 	
 	public static final void registerClient() {

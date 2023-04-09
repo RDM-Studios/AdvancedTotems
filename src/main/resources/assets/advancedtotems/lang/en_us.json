@@ -1,3 +1,9 @@
 {
-  "item.advancedtotems.totem_of_haste": "Totem of Haste"
+  "item.advancedtotems.totem_of_haste": "Totem of Haste",
+  "item.advancedtotems.totem_of_haste_iron": "Totem of Haste",
+  "item.advancedtotems.totem_of_fluid_walking": "Totem of Fluid Walking",
+  "item.advancedtotems.totem_of_mending": "Totem of Mending",
+  "item.advancedtotems.totem_of_mending_iron": "Totem of Mending",
+  "item.advancedtotems.totem_of_mending_diamond": "Totem of Mending",
+  "item.advancedtotems.totem_of_mending_netherite": "Totem of Mending"
 }

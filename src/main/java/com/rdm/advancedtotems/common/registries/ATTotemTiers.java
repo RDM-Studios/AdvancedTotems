@@ -31,7 +31,6 @@ public class ATTotemTiers {
 			TotemTier otherTier = new TotemTier(tierName, tierValue);
 			if (targetTier.equals(otherTier)) return targetTier;
 		}
-		
 		return null;
 	}
 	

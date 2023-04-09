@@ -1,10 +1,8 @@
 package com.rdm.advancedtotems.common.items.totems;
 
-import com.rdm.advancedtotems.api.TotemTier;
+import com.rdm.advancedtotems.api.NumeralConverter;
 import com.rdm.advancedtotems.common.items.base.BaseTotemItem;
-import com.rdm.advancedtotems.common.registries.ATTotemTiers;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -19,42 +17,40 @@ public class HasteTotemItem extends BaseTotemItem {
 	}
 
 	@Override
-	public ObjectArrayList<TotemTier> getValidTiers() {
-		final TotemTier[] validTiers = {ATTotemTiers.NONE, ATTotemTiers.IRON};
-		return ObjectArrayList.wrap(validTiers);
-	}
-
-	@Override
-	public TotemTier getStartingTier() {
-		return ATTotemTiers.NONE;
-	}
-
-	@Override
-	public TotemTier getMaxTier() {
-		return ATTotemTiers.IRON;
-	}
-
-	@Override
 	public void onTotemUse(Entity owner) {
-		
 	}
 
 	@Override
 	public void onTotemTick(Entity owner) {
 		if (owner instanceof LivingEntity) {
 			LivingEntity livingOwner = (LivingEntity) owner;
-			livingOwner.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 20, getCurrentTier().getValue()));
+			livingOwner.addStatusEffect(new StatusEffectInstance(StatusEffects.HASTE, 20, getCurrentTier().getValue() - 1));
 		}
+	}
+	
+	@Override
+	public boolean shouldActivateTotem(Entity owner) {
+		return false;
 	}
 
 	@Override
 	public LiteralText getExtendedDescription() {
-		return new LiteralText("When held, applies haste (level scales with tier)");
+		return null;
 	}
 
 	@Override
 	public Formatting getExtendedDescriptionFormatting() {
-		return Formatting.YELLOW;
+		return null;
+	}
+
+	@Override
+	public Formatting getPassiveExtendedDescriptionFormatting() {
+		return null;
+	}
+
+	@Override
+	public LiteralText getPassiveExtendedDescription() {
+		return new LiteralText("Grants Haste " + NumeralConverter.toRoman(Integer.parseInt(getCurrentTier().getValue().toString())) + " to the player.");
 	}
 
 }

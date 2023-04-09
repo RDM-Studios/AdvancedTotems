@@ -1,6 +1,6 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "advancedtotems:item/totem_of_haste"
+        "layer0": "advancedtotems:item/totem_of_mending"
     }
 }
