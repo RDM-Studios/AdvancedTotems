@@ -12,15 +12,18 @@ group = project.maven_group
 
 dependencies {
 	// Base
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	minecraft("com.mojang:minecraft:${project.minecraft_version}")
+	mappings("net.fabricmc:yarn:${project.yarn_mappings}:v2")
 	
 	// Libraries
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation("net.fabricmc:fabric-loader:${project.loader_version}")
+	modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
 
 	// Extras
-	modImplementation "curse.maven:modmenu-308702:${project.modmenu_version}"
+	modImplementation("curse.maven:modmenu-308702:${project.modmenu_version}")
+	modImplementation("curse.maven:tooltipfix-411557:${project.tooltipfix_version}")
+	modImplementation("curse.maven:nbt-tooltip-274816:${project.nbt_tooltip_version}")
+    
 /*	modImplementation"top.theillusivec4.curios:curios-fabric:${project.curios_version}"
 	modImplementation"curse.maven:charm-of-undying-fabric-395547:${project.charm_of_undying_version}"*/
 }
@@ -45,10 +48,6 @@ repositories {
 		name = "Jitpack IO"
         	url = "https://jitpack.io"
     }
-    maven {
-		name = "Shedaniel Maven"
-        url "https://maven.shedaniel.me/"
-    }
 }
 
 processResources {
@@ -57,6 +56,8 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
 	}
+	
+	exclude '.cache'
 }
 
 tasks.withType(JavaCompile).configureEach {

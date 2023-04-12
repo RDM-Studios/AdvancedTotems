@@ -40,12 +40,13 @@ public class ATRecipes {
 			ObjectArrayList.wrap(new String[]{"XDX", "ETE", "XDX"}), ATItems.TOTEM_OF_MENDING_DIAMOND);
 	public static JsonObject TOTEM_OF_MENDING_NETHERITE_RECIPE = makeShapedItemRecipe(CharArrayList.wrap(new char[]{'N', 'X', 'T'}),
 			ObjectArrayList.wrap(new Item[]{Items.NETHERITE_INGOT, Items.EXPERIENCE_BOTTLE, ATItems.TOTEM_OF_MENDING_DIAMOND}),
-			ObjectArrayList.wrap(new String[]{"ENE", "NTN", "ENE"}), ATItems.TOTEM_OF_MENDING_NETHERITE);
+			ObjectArrayList.wrap(new String[]{"XNX", "NTN", "XNX"}), ATItems.TOTEM_OF_MENDING_NETHERITE);
 
 	private static JsonObject makeShapedItemRecipe(CharArrayList ingredientKeys, ObjectArrayList<Item> ingredients, ObjectArrayList<String> recipePattern, Item resultItem) {
 		return makeShapedRecipe(ingredientKeys, ingredients, IngredientType.ITEM, recipePattern, resultItem, 1);
 	}
 
+	@SuppressWarnings("unused")
 	private static JsonObject makeShapedItemRecipe(CharArrayList ingredientKeys, ObjectArrayList<Item> ingredients, ObjectArrayList<String> recipePattern, Item resultItem, int resultItemCount) {
 		return makeShapedRecipe(ingredientKeys, ingredients, IngredientType.ITEM, recipePattern, resultItem, resultItemCount);
 	}
@@ -111,6 +112,7 @@ public class ATRecipes {
 		return shapedRecipeJson;
 	}
 
+	@SuppressWarnings("unused")
 	private static JsonObject makeShapedRecipe(CharArrayList ingredientKeys, ObjectArrayList<Item> ingredients, ObjectArrayList<IngredientType> ingredientTypes, ObjectArrayList<String> recipePattern, Item resultItem, int resultItemCount) {
 		JsonObject shapedRecipeJson = new JsonObject();
 

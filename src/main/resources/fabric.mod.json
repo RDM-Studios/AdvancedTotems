@@ -31,6 +31,7 @@
 	},
 	"suggests": {
 		"curios": "*",
-		"curioofundying": "*"
+		"curioofundying": "*",
+		"roughlyenoughitems": "*"
 	}
 }

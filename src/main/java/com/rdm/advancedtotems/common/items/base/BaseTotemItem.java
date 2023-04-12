@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.rdm.advancedtotems.api.IUpgradeableTotem;
 import com.rdm.advancedtotems.api.TotemTier;
+import com.rdm.advancedtotems.common.registries.ATItemGroups;
 import com.rdm.advancedtotems.common.registries.ATPackets;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -17,8 +18,8 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.NetworkSyncedItem;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
@@ -29,13 +30,13 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 
-public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
+public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgradeableTotem {
 	private TotemTier curTier;
 
 	public BaseTotemItem(Settings settings) {
-		super(settings.rarity(Rarity.EPIC));
+		super(settings.rarity(Rarity.UNCOMMON).group(ATItemGroups.AT_TOTEMS));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <T extends BaseTotemItem> T setTier(TotemTier tier) {
 		this.curTier = tier;
@@ -68,7 +69,7 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 	public Formatting getTotemBonusFormatting() {
 		return Formatting.GREEN;
 	}
-	
+
 	@Override
 	public boolean shouldActivateTotem(Entity owner) {
 		return false;
@@ -94,22 +95,35 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 		return true;
 	}
 	
+	public boolean shouldTickTotem() {
+		return true;
+	}
+
 	@Nullable
 	public static ItemStack findTotemInInventory(BaseTotemItem totem, PlayerEntity player, boolean shouldBeHolding) {
 		if (player instanceof ServerPlayerEntity) {
 			ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+			ItemStack totemStack = new ItemStack(totem);
+
+			if (!serverPlayer.inventory.offHand.isEmpty()) {
+				for (ItemStack offHandStack : serverPlayer.inventory.offHand) {
+					if (!offHandStack.isEmpty()) {
+						if (offHandStack.isItemEqual(totemStack)) return offHandStack;
+					}
+				}
+			}
 			
 			for (ItemStack curStack : serverPlayer.inventory.main) {
 				if (!curStack.isEmpty()) {
-					if (curStack.isItemEqual(totem.getDefaultStack())) {
-						if (shouldBeHolding) {
-							for (Hand hand : Hand.values()) {
-								ItemStack handStack = player.getStackInHand(hand);
-								if (!handStack.isItemEqual(curStack)) continue;
-								curStack = handStack.copy();
-								return curStack;
-							}
+					if (shouldBeHolding) {
+						for (Hand hand : Hand.values()) {
+							ItemStack handStack = player.getStackInHand(hand);
+							if (!handStack.isItemEqual(curStack)) continue;
+							curStack = handStack.copy();
+							return curStack;
 						}
+					}
+					if (curStack.isItemEqual(totemStack)) {
 						return curStack;
 					}
 				}
@@ -117,22 +131,23 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 		}
 		return ItemStack.EMPTY;
 	}
-	
+
 	public static void playTotemAnimation(ServerPlayerEntity playerOwner, BaseTotemItem totem) {
+		ItemStack totemStack = new ItemStack(totem);
 		PacketByteBuf buf = PacketByteBufs.create();
-		buf.writeItemStack(totem.getDefaultStack());
+		buf.writeItemStack(totemStack);
 		buf.writeInt(playerOwner.getEntityId());
 		ServerPlayNetworking.send(playerOwner, ATPackets.TOTEM_ANIMATION_PACKET, buf);
 		for (ServerPlayerEntity otherPlayer : PlayerLookup.tracking(playerOwner.getServerWorld(), playerOwner.getBlockPos())) {
 			ServerPlayNetworking.send(otherPlayer, ATPackets.TOTEM_ANIMATION_PACKET, buf);
 		}
 	}
-	
+
 	@Nullable
 	public static ItemStack decrementTotem(ServerPlayerEntity owner, BaseTotemItem totem) {
 		ItemStack originalTotemStack;
 		ItemStack totemStack = owner.getMainHandStack().isItemEqual(totem.getDefaultStack()) ? owner.getMainHandStack() : owner.getOffHandStack();
-		
+
 		if (totemStack.isItemEqual(totem.getDefaultStack())) {
 			if (!totemStack.isEmpty()) {
 				originalTotemStack = totemStack.copy();
@@ -141,11 +156,16 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 					owner.incrementStat(Stats.USED.getOrCreateStat(originalTotemStack.getItem()));
 					Criteria.USED_TOTEM.trigger(owner, originalTotemStack);
 				}
-				owner.world.sendEntityStatus(owner, (byte)35);
+				owner.getServerWorld().sendEntityStatus(owner, (byte)35);
 				return originalTotemStack;
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public boolean isEnchantable(ItemStack stack) {
+		return false;
 	}
 
 	@Override
@@ -155,7 +175,7 @@ public abstract class BaseTotemItem extends Item implements IUpgradeableTotem {
 
 		if (getExtendedDescription() != null || getPassiveExtendedDescription() != null) {
 			tooltip.add(new LiteralText("Totem Bonus: ").formatted(getTotemBonusFormatting())
-					.append(new LiteralText("(...)").formatted(getExtendedDescriptionFormatting() == null ? Formatting.GREEN : getExtendedDescriptionFormatting())));
+					.append(new LiteralText("(...)").formatted(Formatting.GREEN)));
 
 			if (Screen.hasShiftDown() || Screen.hasControlDown()) {
 				tooltip.removeIf((text) -> text.toString().contains("(...)"));
