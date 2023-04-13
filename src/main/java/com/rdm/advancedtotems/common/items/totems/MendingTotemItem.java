@@ -184,7 +184,7 @@ public class MendingTotemItem extends BaseTotemItem {
 		int durHealed = 0;
 		NbtCompound dataAmountHealed = new NbtCompound();
 		if (curStack.getItem() instanceof BaseTotemItem) return;
-		switch (getCurrentTier().getValue()) {
+		switch (((BaseTotemItem) totemStack.getItem()).getCurrentTier().getValue()) {
 		default:
 			break;
 		case 1:
@@ -217,7 +217,7 @@ public class MendingTotemItem extends BaseTotemItem {
 		int durHealed = 0;
 		NbtCompound dataAmountHealed = new NbtCompound();
 		if (curStack.getItem() instanceof BaseTotemItem) return;
-		switch (getCurrentTier().getValue()) {
+		switch (((BaseTotemItem) totemStack.getItem()).getCurrentTier().getValue()) {
 		default:
 			break;
 		case 1:
@@ -245,7 +245,7 @@ public class MendingTotemItem extends BaseTotemItem {
 			}
 			break;
 		}
-		dataAmountHealed.putInt("DurabilityHealed", dataAmountHealed.getInt("DurabilityHealed") + durHealed);
+		dataAmountHealed.putInt("DurabilityHealed", durHealed);
 		totemStack.getOrCreateTag().put("AmountHealed", dataAmountHealed);
 	}
 
