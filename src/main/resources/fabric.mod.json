@@ -6,8 +6,8 @@
 	"description": "Advanced Totems is a mod which adds new upgradeable totems to Minecraft!",
 	"authors": ["RDM Studios"],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/RDM-Studios/AdvancedTotems",
+		"sources": "https://github.com/RDM-Studios/AdvancedTotems"
 	},
 	"license": "MIT",
 	"icon": "assets/advancedtotems/advanced_totems_icon.png",
