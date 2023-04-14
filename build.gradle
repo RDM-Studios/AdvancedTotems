@@ -50,6 +50,10 @@ repositories {
     }
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/advancedtotems.aw")
+}
+
 processResources {
 	inputs.property "version", project.version
 

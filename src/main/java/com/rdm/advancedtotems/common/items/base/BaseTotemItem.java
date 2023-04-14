@@ -26,7 +26,6 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
 
@@ -103,8 +102,9 @@ public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgrad
 	public static ItemStack findTotemInInventory(BaseTotemItem totem, PlayerEntity player, boolean shouldBeHolding) {
 		if (player instanceof ServerPlayerEntity) {
 			ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-			ItemStack totemStack = new ItemStack(totem);
+			final ItemStack totemStack = new ItemStack(totem);
 
+			//TODO Probably AW the combinedInventory field in the player class
 			if (!serverPlayer.inventory.offHand.isEmpty()) {
 				for (ItemStack offHandStack : serverPlayer.inventory.offHand) {
 					if (!offHandStack.isEmpty()) {
@@ -116,12 +116,7 @@ public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgrad
 			for (ItemStack curStack : serverPlayer.inventory.main) {
 				if (!curStack.isEmpty()) {
 					if (shouldBeHolding) {
-						for (Hand hand : Hand.values()) {
-							ItemStack handStack = player.getStackInHand(hand);
-							if (!handStack.isItemEqual(curStack)) continue;
-							curStack = handStack.copy();
-							return curStack;
-						}
+						if (player.getMainHandStack().isItemEqual(totemStack)) return player.getMainHandStack();
 					}
 					if (curStack.isItemEqual(totemStack)) {
 						return curStack;

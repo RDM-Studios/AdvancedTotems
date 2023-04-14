@@ -6,8 +6,6 @@ import com.rdm.advancedtotems.common.items.base.BaseTotemItem;
 
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.EquipmentSlot.Type;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -18,6 +16,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 
 public class MendingTotemItem extends BaseTotemItem {
+	private int durHealed = 0;
 
 	public MendingTotemItem(Settings settings) {
 		super(settings);
@@ -28,14 +27,7 @@ public class MendingTotemItem extends BaseTotemItem {
 		if (owner instanceof ServerPlayerEntity) {
 			ServerPlayerEntity playerOwner = (ServerPlayerEntity) owner;
 			ItemStack totemStack = findTotemInInventory(this, playerOwner, false);
-			
-			if (!playerOwner.inventory.armor.isEmpty()) {
-				for (ItemStack armorStack : playerOwner.inventory.armor) {
-					if (!armorStack.isEmpty()) {
-						doBreakMending(playerOwner, armorStack);
-					}
-				}
-			}
+
 			if (!playerOwner.inventory.offHand.isEmpty()) {
 				for (ItemStack offHandStack : playerOwner.inventory.offHand) {
 					if (!offHandStack.isEmpty()) {
@@ -43,6 +35,7 @@ public class MendingTotemItem extends BaseTotemItem {
 					}
 				}
 			}
+
 			if (!playerOwner.inventory.main.isEmpty()) {
 				for (ItemStack curStack : playerOwner.inventory.main) {
 					if (!curStack.isEmpty()) {
@@ -61,7 +54,7 @@ public class MendingTotemItem extends BaseTotemItem {
 		if (owner instanceof ServerPlayerEntity) {
 			ServerPlayerEntity playerOwner = (ServerPlayerEntity) owner;
 			ItemStack totemStack = findTotemInInventory(this, playerOwner, false);
-			
+
 			if (totemStack != null) {
 				if (!playerOwner.inventory.main.isEmpty()) {
 					for (ItemStack curStack : playerOwner.inventory.main) {
@@ -79,13 +72,13 @@ public class MendingTotemItem extends BaseTotemItem {
 	public boolean isDamageable() {
 		return true;
 	}
-    
+
 	//TODO Re-add the tiering system I was making, if ever --Meme Man
-    @Nullable
-    @Override
-    public Packet<?> createSyncPacket(ItemStack stack, World world, PlayerEntity player) {
-        return null;
-    }
+	@Nullable
+	@Override
+	public Packet<?> createSyncPacket(ItemStack stack, World world, PlayerEntity player) {
+		return null;
+	}
 
 	@Override
 	public void onTotemTick(Entity owner) {
@@ -117,25 +110,21 @@ public class MendingTotemItem extends BaseTotemItem {
 						}
 					}
 				}
-				if (totemStack.getOrCreateTag().getCompound("AmountHealed") != null) System.out.println("[NBT HEALED]: " + totemStack.getOrCreateTag().getCompound("AmountHealed").getInt("DurabilityHealed"));
-				if (canDamageOffMending(totemStack)) {
-					if (!playerOwner.world.isClient) totemStack.damage(1, playerOwner, (pOwner) -> pOwner.sendEquipmentBreakStatus(EquipmentSlot.fromTypeIndex(Type.HAND, 0)));
-				}
 			}
 		}
 	}
-	
+
 	private boolean canDamageOffMending(ItemStack totemStack) {
-		return totemStack.getDamage() < totemStack.getMaxDamage() && totemStack.getOrCreateTag().getCompound("AmountHealed") != null && totemStack.getOrCreateTag().getCompound("AmountHealed").getInt("DurabilityHealed") != 0 && totemStack.getOrCreateTag().getCompound("AmountHealed").getInt("DurabilityHealed") % 100 == 0;
+		return totemStack.getDamage() < totemStack.getMaxDamage() && totemStack.hasTag() && totemStack.getOrCreateTag().getInt("DurabilityHealed") % 100 == 0;
 	}
 
 	@Override
 	public LiteralText getExtendedDescription() {
-		return new LiteralText("Mends any item in a player's inventory which is about to break by " + getBreakMending() + " durability. Activates only when said item is 1 durability.");
+		return new LiteralText("Mends any item in a player's inventory which is about to break by " + getBreakMending(this) + " durability. Activates only when said item is 1 durability.");
 	}
 
-	private int getBreakMending() {
-		switch (getCurrentTier().getValue()) {
+	private int getBreakMending(MendingTotemItem mendingTotem) {
+		switch (mendingTotem.getCurrentTier().getValue()) {
 		default:
 			return 10;
 		case 1:
@@ -149,8 +138,8 @@ public class MendingTotemItem extends BaseTotemItem {
 		}
 	}
 
-	private int getPassiveMending() {
-		switch (getCurrentTier().getValue()) {
+	private int getPassiveMending(MendingTotemItem mendingTotem) {
+		switch (mendingTotem.getCurrentTier().getValue()) {
 		default:
 			return 1;
 		case 1:
@@ -164,94 +153,94 @@ public class MendingTotemItem extends BaseTotemItem {
 		}
 	}
 
-	private int getPassiveMendingInterval() {
-		switch (getCurrentTier().getValue()) {
+	private int getPassiveMendingInterval(MendingTotemItem mendingTotem) {
+		switch (mendingTotem.getCurrentTier().getValue()) {
 		default:
-			return 5;
+			return 100;
 		case 1:
-			return 5;
+			return 100;
 		case 2:
-			return 3;
+			return 60;
 		case 3:
-			return 2;
+			return 40;
 		case 4:
-			return 1;
+			return 20;
 		}
 	}
-	
+
 	private void doBreakMending(ServerPlayerEntity playerOwner, ItemStack curStack) {
 		ItemStack totemStack = findTotemInInventory(this, playerOwner, false);
-		int durHealed = 0;
 		NbtCompound dataAmountHealed = new NbtCompound();
+
 		if (curStack.getItem() instanceof BaseTotemItem) return;
-		switch (((BaseTotemItem) totemStack.getItem()).getCurrentTier().getValue()) {
-		default:
-			break;
-		case 1:
-			curStack.setDamage(curStack.getDamage() - getBreakMending());
-			durHealed += getBreakMending();
-			playTotemAnimation(playerOwner, this);
-			break;
-		case 2:
-			curStack.setDamage(curStack.getDamage() - getBreakMending());
-			durHealed += getBreakMending();
-			playTotemAnimation(playerOwner, this);
-			break;
-		case 3:
-			curStack.setDamage(curStack.getDamage() - getBreakMending());
-			durHealed += getBreakMending();
-			playTotemAnimation(playerOwner, this);
-			break;
-		case 4:
-			curStack.setDamage(curStack.getDamage() - getBreakMending());
-			durHealed += getBreakMending();
-			playTotemAnimation(playerOwner, this);
-			break;
+
+		if (totemStack.getItem() instanceof MendingTotemItem) {
+			final MendingTotemItem mendingTotem = (MendingTotemItem) totemStack.getItem();
+
+			switch (mendingTotem.getCurrentTier().getValue()) {
+			default:
+				break;
+			case 1:
+				curStack.setDamage(curStack.getDamage() - getBreakMending(mendingTotem));
+				mendingTotem.durHealed += getBreakMending(mendingTotem);
+				playTotemAnimation(playerOwner, this);
+				break;
+			case 2:
+				curStack.setDamage(curStack.getDamage() - getBreakMending(mendingTotem));
+				mendingTotem.durHealed += getBreakMending(mendingTotem);
+				playTotemAnimation(playerOwner, this);
+				break;
+			case 3:
+				curStack.setDamage(curStack.getDamage() - getBreakMending(mendingTotem));
+				mendingTotem.durHealed += getBreakMending(mendingTotem);
+				playTotemAnimation(playerOwner, this);
+				break;
+			case 4:
+				curStack.setDamage(curStack.getDamage() - getBreakMending(mendingTotem));
+				mendingTotem.durHealed += getBreakMending(mendingTotem);
+				playTotemAnimation(playerOwner, this);
+				break;
+			}
+
+			if (!playerOwner.world.isClient) {
+				if (!totemStack.getOrCreateTag().contains("DurabilityHealed") && mendingTotem.durHealed > 0) mendingTotem.durHealed = 0;
+				dataAmountHealed.putInt("DurabilityHealed", mendingTotem.durHealed);
+				totemStack.setTag(dataAmountHealed);
+				if (canDamageOffMending(totemStack)) {
+					totemStack.damage(10, playerOwner, (pOwner) -> totemStack.setDamage(totemStack.getMaxDamage() - 1));
+				}
+			}
 		}
-		dataAmountHealed.putInt("DurabilityHealed", dataAmountHealed.getInt("DurabilityHealed") + durHealed);
-		totemStack.getOrCreateTag().put("AmountHealed", dataAmountHealed);
 	}
-	
+
 	private void doPassiveMending(ServerPlayerEntity playerOwner, ItemStack curStack) {
 		ItemStack totemStack = findTotemInInventory(this, playerOwner, true);
-		int durHealed = 0;
 		NbtCompound dataAmountHealed = new NbtCompound();
+
 		if (curStack.getItem() instanceof BaseTotemItem) return;
-		switch (((BaseTotemItem) totemStack.getItem()).getCurrentTier().getValue()) {
-		default:
-			break;
-		case 1:
-			if (playerOwner.getServerWorld().getTime() % 100 == 0 && totemStack.getDamage() < totemStack.getMaxDamage()) {
-				curStack.setDamage(curStack.getDamage() - getPassiveMending());
-				durHealed += getPassiveMending();
+
+		if (totemStack.getItem() instanceof MendingTotemItem) {
+			final MendingTotemItem mendingTotem = (MendingTotemItem) totemStack.getItem();
+
+			if (playerOwner.getServerWorld().getTime() % getPassiveMendingInterval(mendingTotem) == 0 && totemStack.getDamage() < totemStack.getMaxDamage()) {
+				curStack.setDamage(curStack.getDamage() - getBreakMending(mendingTotem));
+				mendingTotem.durHealed += getPassiveMending(mendingTotem);
 			}
-			break;
-		case 2:
-			if (playerOwner.getServerWorld().getTime() % 60 == 0 && totemStack.getDamage() < totemStack.getMaxDamage()) {
-				curStack.setDamage(curStack.getDamage() - getPassiveMending());
-				durHealed += getPassiveMending();
+			
+			if (!playerOwner.world.isClient) {
+				if (!totemStack.getOrCreateTag().contains("DurabilityHealed") && mendingTotem.durHealed > 0) mendingTotem.durHealed = 0;
+				dataAmountHealed.putInt("DurabilityHealed", mendingTotem.durHealed);
+				totemStack.setTag(dataAmountHealed);
+				if (canDamageOffMending(totemStack)) {
+					totemStack.damage(1, playerOwner, (pOwner) -> totemStack.setDamage(totemStack.getMaxDamage() - 1));
+				}
 			}
-			break;
-		case 3:
-			if (playerOwner.getServerWorld().getTime() % 40 == 0 && totemStack.getDamage() < totemStack.getMaxDamage()) {
-				curStack.setDamage(curStack.getDamage() - getPassiveMending());
-				durHealed += getPassiveMending();
-			}
-			break;
-		case 4:
-			if (playerOwner.getServerWorld().getTime() % 20 == 0 && totemStack.getDamage() < totemStack.getMaxDamage()) {
-				curStack.setDamage(curStack.getDamage() - getPassiveMending());
-				durHealed += getPassiveMending();
-			}
-			break;
 		}
-		dataAmountHealed.putInt("DurabilityHealed", durHealed);
-		totemStack.getOrCreateTag().put("AmountHealed", dataAmountHealed);
 	}
 
 	@Override
 	public LiteralText getPassiveExtendedDescription() {
-		return new LiteralText("Mends damageable items in a player's inventory by " + getPassiveMending() + " durability every " + (getPassiveMendingInterval() > 1 ? getPassiveMendingInterval() + " seconds." : "second."));
+		return new LiteralText("Mends damageable items in a player's inventory by " + getPassiveMending(this) + " durability every " + (getPassiveMendingInterval(this) > 1 ? getPassiveMendingInterval(this) + " seconds." : "second."));
 	}
 
 	@Override
@@ -261,7 +250,7 @@ public class MendingTotemItem extends BaseTotemItem {
 
 	@Override
 	public boolean postProcessNbt(NbtCompound nbt) {
-		return true;
+		return false;
 	}
 
 	@Override
