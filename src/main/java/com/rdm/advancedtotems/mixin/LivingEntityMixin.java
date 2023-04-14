@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 
 @Mixin(LivingEntity.class)
@@ -43,8 +44,11 @@ public abstract class LivingEntityMixin extends Entity {
 
 	@Inject(method = "canWalkOnFluid", at = @At("HEAD"), cancellable = true)
 	public void at$canWalkOnFluid(Fluid fluid, CallbackInfoReturnable<Boolean> info) {
-		if (getMainHandStack().isItemEqual(ATItems.TOTEM_OF_FLUID_WALKING.getDefaultStack()) || getOffHandStack().isItemEqual(ATItems.TOTEM_OF_FLUID_WALKING.getDefaultStack())) {
-			info.setReturnValue(true);
+		LivingEntity living = (LivingEntity) (Object) this;
+		if (living instanceof ServerPlayerEntity) {
+			if ((getMainHandStack().isItemEqual(ATItems.TOTEM_OF_FLUID_WALKING.getDefaultStack()) || getOffHandStack().isItemEqual(ATItems.TOTEM_OF_FLUID_WALKING.getDefaultStack())) || BaseTotemItem.findCuriosTotem(ATItems.TOTEM_OF_FLUID_WALKING, (ServerPlayerEntity) living) != null) {
+				info.setReturnValue(true);
+			}
 		}
 	}
 

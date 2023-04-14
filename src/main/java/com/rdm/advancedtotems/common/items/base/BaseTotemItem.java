@@ -2,6 +2,7 @@ package com.rdm.advancedtotems.common.items.base;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.jetbrains.annotations.Nullable;
 
 import com.rdm.advancedtotems.api.IUpgradeableTotem;
@@ -12,6 +13,7 @@ import com.rdm.advancedtotems.common.registries.ATPackets;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
@@ -28,6 +30,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Rarity;
 import net.minecraft.world.World;
+import top.theillusivec4.curios.api.CuriosApi;
 
 public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgradeableTotem {
 	private TotemTier curTier;
@@ -59,9 +62,11 @@ public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgrad
 	public Formatting getPassiveDescriptionFormatting() {
 		return Formatting.YELLOW;
 	}
+	
 	public Formatting getDescriptionFormatting() {
 		return Formatting.BLUE;
 	}
+	
 	public abstract Formatting getPassiveExtendedDescriptionFormatting();
 	public abstract Formatting getExtendedDescriptionFormatting();
 
@@ -83,7 +88,13 @@ public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgrad
 		if (stack.getItem() instanceof IUpgradeableTotem) {
 			if (owner instanceof LivingEntity) {
 				LivingEntity livingOwner = (LivingEntity) owner;
-				if (livingOwner.getMainHandStack().getItem() == this || livingOwner.getOffHandStack().getItem() == this)
+				if (livingOwner instanceof ServerPlayerEntity) {
+					if (FabricLoader.getInstance().isModLoaded("curios")) {
+						if ((livingOwner.getMainHandStack().getItem() == this || livingOwner.getOffHandStack().getItem() == this) || findCuriosTotem(this, (ServerPlayerEntity) livingOwner) != null)
+							((IUpgradeableTotem) stack.getItem()).onTotemTick(livingOwner);
+					}
+				}
+				if ((livingOwner.getMainHandStack().getItem() == this || livingOwner.getOffHandStack().getItem() == this) || findCuriosTotem(this, null) != null)
 					((IUpgradeableTotem) stack.getItem()).onTotemTick(livingOwner);
 			}
 		}
@@ -124,7 +135,12 @@ public abstract class BaseTotemItem extends NetworkSyncedItem implements IUpgrad
 				}
 			}
 		}
-		return ItemStack.EMPTY;
+		return null;
+	}
+	
+	public static ItemStack findCuriosTotem(BaseTotemItem totem, ServerPlayerEntity playerOwner) {
+		if (!FabricLoader.getInstance().isModLoaded("curios")) return null;
+		return CuriosApi.getCuriosHelper().findEquippedCurio(totem, playerOwner).map(ImmutableTriple::getRight).orElse(ItemStack.EMPTY);
 	}
 
 	public static void playTotemAnimation(ServerPlayerEntity playerOwner, BaseTotemItem totem) {

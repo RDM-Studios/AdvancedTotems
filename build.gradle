@@ -24,8 +24,8 @@ dependencies {
 	modImplementation("curse.maven:tooltipfix-411557:${project.tooltipfix_version}")
 	modImplementation("curse.maven:nbt-tooltip-274816:${project.nbt_tooltip_version}")
     
-/*	modImplementation"top.theillusivec4.curios:curios-fabric:${project.curios_version}"
-	modImplementation"curse.maven:charm-of-undying-fabric-395547:${project.charm_of_undying_version}"*/
+	modImplementation("top.theillusivec4.curios:curios-fabric:${project.curios_version}")
+	modImplementation("curse.maven:charm-of-undying-fabric-395547:${project.charm_of_undying_version}")
 }
 
 repositories {

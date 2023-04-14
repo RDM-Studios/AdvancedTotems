@@ -4,8 +4,7 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"LivingEntityMixin",
-		"RecipeManagerMixin",
-		"ExperienceOrbEntityMixin"
+		"RecipeManagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

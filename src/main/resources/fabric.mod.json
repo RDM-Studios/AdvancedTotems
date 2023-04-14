@@ -24,7 +24,7 @@
 	"advancedtotems.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.19",
+		"fabricloader": ">=0.14.13",
 		"minecraft": "~1.16.5",
 		"java": ">=8",
 		"fabric": "*"
